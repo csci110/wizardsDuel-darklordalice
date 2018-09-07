@@ -1,6 +1,29 @@
 import { game, Sprite } from "../sgc/sgc.js";
 game.setBackground("floor.png");
 
+class Fireball extends Sprite {
+    constructor(deadSprite) {
+        super();
+        this.x = deadSprite.x;
+        this.y = deadSprite.y;
+        this.setImage("fireballSheet.png");
+        game.removeSprite(deadSprite);
+        this.defineAnimation("explode", 0, 16);
+    }
+    
+    handleAnimationEnd() {
+        game.removeSprite(this);
+        if (!game.isActiveSprite(marcus)){
+            game.end("Marcus is defeated by the mysterious\nstranger in the dark cloak!\n\nBetter luck next time.");
+            
+        }
+        
+        if (!game.isActiveSprite(stranger)) {
+            game.end("Congratulations!\n\nMarcus has defeated the mysterious\nstranger in the dark cloak!");
+        }
+    }
+}
+
 class Spell extends Sprite {
     constructor() {
         super();
@@ -13,6 +36,15 @@ class Spell extends Sprite {
     handleBoundrayContact() {
         // Delete spell when it leaves display area
         game.removeSprite(this);
+    }
+
+    handleCollision(otherSprite) {
+        // Compare images so Stranger's spells don't destory each other.
+        if (this.getImage() !== otherSprite.getImage()) {
+            game.removeSprite(this);
+            new Fireball(otherSprite);
+        }
+        return false;
     }
 }
 
@@ -45,7 +77,7 @@ class PlayerWizard extends Sprite {
 
     handleSpacebar() {
         let spell = new Spell;
-        spell.x = this.width; //this sets the position of the spell object equal to
+        spell.x = this.x + this.width; //this sets the position of the spell object equal to
         spell.y = this.y; //this position of any object created from the PlayerWizard class
         spell.name = "A spell cast by Marcus";
         spell.setImage("marcusSpellSheet.png");
@@ -71,7 +103,7 @@ class NonPlayerWizard extends Sprite {
         this.defineAnimation("down", 6, 8);
         this.defineAnimation("left", 3, 5);
     }
-    
+
     handleGameLoop() {
         if (this.y <= 0) {
             // Upward motion has reached top, so turn down
@@ -87,12 +119,12 @@ class NonPlayerWizard extends Sprite {
             this.playAnimation("up");
         }
     }
-    
+
     handleAnimationEnd() {
-        if (this.angle===90) {
+        if (this.angle === 90) {
             this.playAnimation("up");
         }
-        if (this.angle===270) {
+        if (this.angle === 270) {
             this.playAnimation("down");
         }
     }
