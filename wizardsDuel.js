@@ -1,29 +1,6 @@
 import { game, Sprite } from "../sgc/sgc.js";
 game.setBackground("floor.png");
 
-class Fireball extends Sprite {
-    constructor(deadSprite) {
-        super();
-        this.x = deadSprite.x;
-        this.y = deadSprite.y;
-        this.setImage("fireballSheet.png");
-        game.removeSprite(deadSprite);
-        this.defineAnimation("explode", 0, 16);
-    }
-    
-    handleAnimationEnd() {
-        game.removeSprite(this);
-        if (!game.isActiveSprite(marcus)){
-            game.end("Marcus is defeated by the mysterious\nstranger in the dark cloak!\n\nBetter luck next time.");
-            
-        }
-        
-        if (!game.isActiveSprite(stranger)) {
-            game.end("Congratulations!\n\nMarcus has defeated the mysterious\nstranger in the dark cloak!");
-        }
-    }
-}
-
 class Spell extends Sprite {
     constructor() {
         super();
@@ -41,10 +18,39 @@ class Spell extends Sprite {
     handleCollision(otherSprite) {
         // Compare images so Stranger's spells don't destory each other.
         if (this.getImage() !== otherSprite.getImage()) {
-            game.removeSprite(this);
-            new Fireball(otherSprite);
+            // Adjust mostly blank spell image to vertical center.
+            let verticalOffset = Math.abs(this.y - otherSprite.y);
+            if (verticalOffset < this.height / 2) {
+                game.removeSprite(this);
+                new Fireball(otherSprite);
+            }
         }
         return false;
+    }
+}
+
+
+class Fireball extends Sprite {
+    constructor(deadSprite) {
+        super();
+        this.x = deadSprite.x;
+        this.y = deadSprite.y;
+        this.setImage("fireballSheet.png");
+        game.removeSprite(deadSprite);
+        this.defineAnimation("explode", 0, 16);
+        this.playAnimation("explode", true);
+    }
+
+    handleAnimationEnd() {
+        game.removeSprite(this);
+        if (!game.isActiveSprite(marcus)) {
+            game.end("Marcus is defeated by the mysterious\nstranger in the dark cloak!\n\nBetter luck next time.");
+
+        }
+
+        if (!game.isActiveSprite(stranger)) {
+            game.end("Congratulations!\n\nMarcus has defeated the mysterious\nstranger in the dark cloak!");
+        }
     }
 }
 
@@ -59,6 +65,7 @@ class PlayerWizard extends Sprite {
         this.y = this.height;
         this.defineAnimation("down", 6, 8);
         this.defineAnimation("right", 3, 5);
+        this.defineAnimation("up", 0, 2)
         this.speedWhenWalking = 100;
     }
 
@@ -67,9 +74,15 @@ class PlayerWizard extends Sprite {
         this.speed = this.speedWhenWalking;
         this.angle = 270;
     }
+    
+    handleUpArrowKey() {
+        this.playAnimation("up");
+        this.speed = this.speedWhenWalking;
+        this.angle = -270;
+    }
 
     handleGameLoop() {
-        this.y = Math.max(0, this.y);
+        this.y = Math.max(5, this.y);
         this.y = Math.min(522, this.y);
         this.speed = 0;
         // Keep Marcus in the disply area
@@ -118,6 +131,8 @@ class NonPlayerWizard extends Sprite {
             this.angle = 90;
             this.playAnimation("up");
         }
+        
+        
     }
 
     handleAnimationEnd() {
@@ -127,6 +142,16 @@ class NonPlayerWizard extends Sprite {
         if (this.angle === 270) {
             this.playAnimation("down");
         }
+    }
+    
+    handleSpacebar() {
+        let spell = new Spell;
+        spell.x = this.x - this.width;
+        spell.y = this.y;
+        spell.name = "A spell cast by Mysterious Stranger";
+        spell.setImage("strangerSpellSheet.png");
+        spell.angle = 180;
+        this.playAnimation("left");
     }
 }
 
