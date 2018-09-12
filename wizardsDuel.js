@@ -37,7 +37,7 @@ class Fireball extends Sprite {
         this.y = deadSprite.y;
         this.setImage("fireballSheet.png");
         game.removeSprite(deadSprite);
-        this.defineAnimation("explode", 0, 16);
+        this.defineAnimation("explode", 0, 15);
         this.playAnimation("explode", true);
     }
 
@@ -65,8 +65,9 @@ class PlayerWizard extends Sprite {
         this.y = this.height;
         this.defineAnimation("down", 6, 8);
         this.defineAnimation("right", 3, 5);
-        this.defineAnimation("up", 0, 2)
+        this.defineAnimation("up", 0, 2);
         this.speedWhenWalking = 100;
+        this.spellCastTime = 0;
     }
 
     handleDownArrowKey() {
@@ -74,7 +75,7 @@ class PlayerWizard extends Sprite {
         this.speed = this.speedWhenWalking;
         this.angle = 270;
     }
-    
+
     handleUpArrowKey() {
         this.playAnimation("up");
         this.speed = this.speedWhenWalking;
@@ -89,13 +90,20 @@ class PlayerWizard extends Sprite {
     }
 
     handleSpacebar() {
-        let spell = new Spell;
-        spell.x = this.x + this.width; //this sets the position of the spell object equal to
-        spell.y = this.y; //this position of any object created from the PlayerWizard class
-        spell.name = "A spell cast by Marcus";
-        spell.setImage("marcusSpellSheet.png");
-        spell.angle = 0;
-        this.playAnimation("right");
+        //if the current time is2 or more seconds greater than the pervious spellCastTime
+        if (now - this.spellCastTime >= 2) {
+            //rest the timer
+            this.spellCastTime = now;
+            //cast a spell
+            let spell = new Spell;
+            let now = game.getTime(); //get the number of seconds since game start
+            spell.x = this.x + this.width; //this sets the position of the spell object equal to
+            spell.y = this.y; //this position of any object created from the PlayerWizard class
+            spell.name = "A spell cast by Marcus";
+            spell.setImage("marcusSpellSheet.png");
+            spell.angle = 0;
+            this.playAnimation("right");
+        }
     }
 }
 
@@ -131,8 +139,16 @@ class NonPlayerWizard extends Sprite {
             this.angle = 90;
             this.playAnimation("up");
         }
-        
-        
+
+        if (Math.random() < 0.01) {
+            let spell = new Spell;
+            spell.x = this.x - this.width;
+            spell.y = this.y;
+            spell.name = "A spell cast by Mysterious Stranger";
+            spell.setImage("strangerSpellSheet.png");
+            spell.angle = 180;
+            this.playAnimation("left");
+        }
     }
 
     handleAnimationEnd() {
@@ -143,7 +159,7 @@ class NonPlayerWizard extends Sprite {
             this.playAnimation("down");
         }
     }
-    
+
     handleSpacebar() {
         let spell = new Spell;
         spell.x = this.x - this.width;
