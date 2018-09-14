@@ -91,12 +91,12 @@ class PlayerWizard extends Sprite {
 
     handleSpacebar() {
         //if the current time is2 or more seconds greater than the pervious spellCastTime
+        let now = game.getTime(); //get the number of seconds since game start
         if (now - this.spellCastTime >= 2) {
             //rest the timer
             this.spellCastTime = now;
             //cast a spell
             let spell = new Spell;
-            let now = game.getTime(); //get the number of seconds since game start
             spell.x = this.x + this.width; //this sets the position of the spell object equal to
             spell.y = this.y; //this position of any object created from the PlayerWizard class
             spell.name = "A spell cast by Marcus";
