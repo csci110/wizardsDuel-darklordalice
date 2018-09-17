@@ -38,18 +38,20 @@ class Fireball extends Sprite {
         this.setImage("fireballSheet.png");
         game.removeSprite(deadSprite);
         this.defineAnimation("explode", 0, 15);
-        this.playAnimation("explode", true);
+        this.playAnimation("explode");
     }
 
     handleAnimationEnd() {
         game.removeSprite(this);
-        if (!game.isActiveSprite(marcus)) {
-            game.end("Marcus is defeated by the mysterious\nstranger in the dark cloak!\n\nBetter luck next time.");
+        if (!game.isActiveSprite(stranger)) {
+            game.end("Marcus is defeated by the mysterious"
+            + "\nstranger in the dark cloak!\n\nBetter luck next time.");
 
         }
 
-        if (!game.isActiveSprite(stranger)) {
-            game.end("Congratulations!\n\nMarcus has defeated the mysterious\nstranger in the dark cloak!");
+        if (!game.isActiveSprite(marcus)) {
+            game.end("Congratulations!\n\nMarcus has defeated the mysterious"
+            + "\nstranger in the dark cloak!");
         }
     }
 }
