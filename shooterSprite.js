@@ -1,14 +1,14 @@
 import { game, Sprite } from "../sgc/sgc.js";
 game.setBackground("floorTile.png"); // Photo credit: Deviantart.net
 
-class Arrow extends Sprite { 
+class Arrow extends Sprite {
     constructor() {
         super();
         this.speed = 200;
         this.height = 48;
         this.width = 48;
-        this.defineAnimation();
-        this.playAnimation(); // add true
+        this.defineAnimation("arrow", 0, 7);
+        this.playAnimation("arrow", true);
     }
 
     handleBoundrayContact() {
@@ -23,85 +23,79 @@ class Arrow extends Sprite {
             let verticalOffset = Math.abs(this.y - otherSprite.y);
             if (verticalOffset < this.height / 2) {
                 game.removeSprite(this);
-                New Thing(otherSprite); // change thing to whatever youre going to make their death thing
+                new Evaporate(otherSprite);
             }
         }
         return false;
     }
 }
 
-class Thing extends Sprite {
-    constructor() {
+class Evaporate extends Sprite {
+    constructor(deadSprite) {
         super();
         this.x = deadSprite.x;
         this.y = deadSprite.y;
-        this.setImage(); // whatever image you choose
+        this.setImage("evaporate.png");
         game.removeSprite(deadSprite);
-        this.defineAnimation();
-        this.playAnimation(); // dont add true
+        this.defineAnimation("evaporate", 0, 15);
+        this.playAnimation("evaporate");
     }
 
     handleAnimationEnd() {
         game.removeSprite(this);
-        if (!game.isActiveSprite(character)) {
-            game.end() //add end message
+        if (!game.isActiveSprite(ganondorf)) {
+            game.end("Link is Defeat by Ganondorf" +
+                "\nBad End");
         }
 
-        if (!game.isActiveSprite(otherdude)) { // replace otherdude
-            game.end() //add end message
+        if (!game.isActiveSprite(link)) {
+            game.end("Ganondorf is Defeated by Link" +
+                "\nGood End");
         }
 
     }
 }
 
-class PlayerArcher extends Sprite() {
+class PlayerArcher extends Sprite {
     constructor() {
         super();
-        this.name = "Link"; 
-        this.setImage() // fix animation strip
+        this.name = "Link";
+        this.setImage("link.png");
         this.width = 48;
         this.height = 48;
         this.x = this.width;
         this.y = this.height;
-        this.defineAnimation("down"); // add numbers
-        this.defineAnimation("up"); // add numbers
-        this.defineAnimation("left"); // add numbers
-        this.defineAnimation("right"); // add numbers
         this.speedWhenWalking = 150;
         this.arrowShootTime = 0;
     }
-    
+
     handleDownArrowKey() {
-        this.playAnimation("down");
         this.speed = this.speedWhenWalking;
         this.angle = 270;
     }
-    
+
     handleUpArrowKey() {
-        this.playAnimation("up");
-        this.speed = speedWhenWalking;
+        this.speed = this.speedWhenWalking;
         this.angle = -270;
     }
-    
+
     handleLeftArrowKey() {
-        this.playAnimation("left");
-        this.speed = speedWhenWalking;
-        this.angle = 170; // check this
+        this.speed = this.speedWhenWalking;
+        this.angle = 0;
     }
-    
+
     handleRightArrowKey() {
-        this.playAnimation("right");
-        this.speed = speedWhenWalking;
-        this.angle = -170; // check this
+        this.speed = this.speedWhenWalking;
+        this.angle = -170;
     }
-    
+
     handleGameLoop() {
         this.y = Math.max(5, this.y);
         this.y = Math.min(522, this.y);
         this.speed = 0;
         // keeps Link in the area
     }
-    
+
     handleSpacebar() {
         // if the current time is 2 or more secs greater than the previous spellCastTime
         let now = game.getTime(); // get the number of secs since the game start
@@ -113,9 +107,63 @@ class PlayerArcher extends Sprite() {
             arrow.x = this.x + this.width; // sets the position of the arrow object equal to
             arrow.y = this.y; // this position of any object created from the PlayerArcher class
             arrow.name = "An Arrow Shot by Link";
-            arrow.setImage(); // find image of an arrow
-            arrow.angle = 0;
-            this.playAnimation("down");
+            arrow.setImage("arrow.png");
+            arrow.angle = -0;
+
         }
     }
 }
+
+let link = new PlayerArcher();
+
+class NonPlayerArcher extends Sprite {
+    constructor() {
+        super();
+        this.name = "Ganondorf";
+        this.setImage("ganondorf.png");
+        this.width = 48;
+        this.height = 48;
+        this.x = game.displayWidth - 2 * this.width;
+        this.y = this.height;
+        this.angle = 270;
+        this.speed = 200;
+    }
+
+    handleGameLoop() {
+        if (this.y <= 0) {
+            this.y = 0;
+            this.angle = 270;
+        }
+
+        if (this.y >= game.displayHeight - this.height) {
+            //downward motion has reached bottom, so turnup
+            this.y = game.displayHeight - this.height;
+            this.angle = 90;
+        }
+
+        if (Math.random() < 0.01) {
+            let arrow = new Arrow;
+            arrow.x = this.x - this.width;
+            arrow.y = this.y;
+            arrow.name = "An arrow cast by Ganondorf";
+            arrow.setImage("ganonArrow.png");
+            arrow.angle = 180;
+        }
+    }
+
+    handleAnimationEnd() {
+        if (this.angle === 90) {}
+        if (this.angle === 270) {}
+    }
+
+    handleSpacebar() {
+        let arrow = new Arrow;
+        arrow.x = this.x - this.width;
+        arrow.y = this.y;
+        arrow.name = "An arrow shot by ganondorf";
+        arrow.setImage("ganonArrow.png");
+        arrow.angle = 180;
+    }
+}
+
+let ganondorf = new NonPlayerArcher();
